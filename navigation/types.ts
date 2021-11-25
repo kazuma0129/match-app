@@ -7,6 +7,8 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import { Thread } from '../models/threads';
+
 declare global {
   namespace ReactNavigation {
     interface RootParamList extends RootStackParamList {}
@@ -33,4 +35,14 @@ export type RootTabParamList = {
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<
   BottomTabScreenProps<RootTabParamList, Screen>,
   NativeStackScreenProps<RootStackParamList>
+>;
+
+export type OneStackParamList = {
+  Thread: Thread;
+  ThreadList: undefined;
+};
+
+export type OneScreenProps<Screen extends keyof OneStackParamList> = NativeStackScreenProps<
+  OneStackParamList,
+  Screen
 >;

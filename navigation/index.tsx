@@ -14,11 +14,21 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
+
+// import TabOneScreen from '../screens/TabOneScreen';
+
 import TabTwoScreen from '../screens/TabTwoScreen';
 import TabThreeScreen from '../screens/TabThreeScreen';
-import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
+import {
+  RootStackParamList,
+  RootTabParamList,
+  RootTabScreenProps,
+  OneStackParamList,
+} from './types';
 import LinkingConfiguration from './LinkingConfiguration';
+
+import ThreadList from '../screens/ThreadList';
+import Thread from '../screens/Thread';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -49,6 +59,17 @@ function RootNavigator() {
   );
 }
 
+const OneStack = createNativeStackNavigator<OneStackParamList>();
+
+function OneNavigator() {
+  return (
+    <OneStack.Navigator initialRouteName='ThreadList'>
+      <OneStack.Screen name='Thread' component={Thread} />
+      <OneStack.Screen name='ThreadList' component={ThreadList} />
+    </OneStack.Navigator>
+  );
+}
+
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
  * https://reactnavigation.org/docs/bottom-tab-navigator
@@ -68,26 +89,10 @@ function BottomTabNavigator() {
     >
       <BottomTab.Screen
         name='TabOne'
-        component={TabOneScreen}
+        component={OneNavigator}
         options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
           headerShown: false,
-          // title: 'Tab One',
           tabBarIcon: ({ color }) => <TabBarIcon name='comments' color={color} />,
-          // headerRight: () => (
-          //   <Pressable
-          //     onPress={() => navigation.navigate('Modal')}
-          //     style={({ pressed }) => ({
-          //       opacity: pressed ? 0.5 : 1,
-          //     })}
-          //   >
-          //     <FontAwesome
-          //       name='info-circle'
-          //       size={25}
-          //       color={Colors[colorScheme].text}
-          //       style={{ marginRight: 15 }}
-          //     />
-          //   </Pressable>
-          // ),
         })}
       />
       <BottomTab.Screen
@@ -96,7 +101,7 @@ function BottomTabNavigator() {
         options={{
           headerShown: false,
           title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name='search' color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name='users' color={color} />,
         }}
       />
       <BottomTab.Screen
