@@ -8,7 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
-import { ColorSchemeName, Pressable } from 'react-native';
+import { ColorSchemeName } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -29,6 +29,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 
 import ThreadList from '../screens/ThreadList';
 import Thread from '../screens/Thread';
+import Profile from '../screens/Profile';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -65,7 +66,18 @@ function OneNavigator() {
   return (
     <OneStack.Navigator initialRouteName='ThreadList'>
       <OneStack.Screen name='Thread' component={Thread} />
-      <OneStack.Screen name='ThreadList' component={ThreadList} />
+      <OneStack.Screen
+        name='ThreadList'
+        component={ThreadList}
+        options={() => ({ headerShown: false })}
+      />
+      <OneStack.Screen
+        name='Profile'
+        component={Profile}
+        options={() => ({
+          headerTransparent: true,
+        })}
+      />
     </OneStack.Navigator>
   );
 }

@@ -6567,6 +6567,11 @@ react-dom@17.0.1:
     object-assign "^4.1.1"
     scheduler "^0.20.1"
 
+react-hook-form@7.20.2:
+  version "7.20.2"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.20.2.tgz#6fe76b680dd54ceb95c9c1a3c6338162081ba2e2"
+  integrity sha512-J5zkZW0Mf3KuMlk7Tl1tWYXoSjYhfKyEu//NfWTn2xzvv2vnDT5/EE/vHgtNb7kVeYpx6/mHIBd9aOfNnWcOsg==
+
 "react-is@^16.12.0 || ^17.0.0", react-is@^17.0.1, react-is@^17.0.2:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
@@ -6692,7 +6697,7 @@ react-native-svg@12.1.1:
     css-select "^2.1.0"
     css-tree "^1.0.0-alpha.39"
 
-react-native-swipe-cards-deck@^0.3.0:
+react-native-swipe-cards-deck@0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/react-native-swipe-cards-deck/-/react-native-swipe-cards-deck-0.3.0.tgz#bef9ff16151979d4e60397f407c44e8d1f4650b7"
   integrity sha512-evidiowLlLVIB6USgyQV5ypfjTFjau88WvxasfFXuxs4e5lzdaip9FwbPzkV8Z5Ni4s7Os/L8xq9lI3TiHLFsQ==

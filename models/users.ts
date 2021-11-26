@@ -20,6 +20,7 @@ export type UserBase = {
   userId: Uid;
   displayName: DisplayName;
   bio?: Bio;
+  avatar?: string;
 };
 
 export type UserPublic = UserBase;

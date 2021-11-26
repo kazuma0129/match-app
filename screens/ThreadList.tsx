@@ -1,94 +1,137 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { View, FlatList, StyleSheet, Text, StatusBar, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, StatusBar, TextInput, Platform } from 'react-native';
+
+import { useForm, Controller } from 'react-hook-form';
 
 import { OneScreenProps } from '../navigation/types';
 import { Thread } from '../models/threads';
-import { UserPublic } from '../models/users';
+import { Message } from '../models/messages';
 
-const users: UserPublic[] = [
-  {
-    userId: '1001',
-    displayName: 'Steve',
-  },
-  {
-    userId: '1002',
-    displayName: 'Mike',
-  },
-  {
-    userId: '1003',
-    displayName: 'Andy',
-  },
-  {
-    userId: '1004',
-    displayName: 'John',
-  },
-  {
-    userId: '1005',
-    displayName: 'Jenny',
-  },
-  {
-    userId: '1006',
-    displayName: 'Bob',
-  },
-];
+import { threadList, messageList } from '../demo';
 
-const threadList: Thread[] = [
-  {
-    _uid: '10101',
-    createdAt: Date.now().valueOf(),
-    threadId: '1010101',
-    members: [users[0]],
-  },
-  {
-    _uid: '10102',
-    createdAt: Date.now().valueOf(),
-    threadId: '1010102',
-    members: [users[1]],
-  },
-  {
-    _uid: '10103',
-    createdAt: Date.now().valueOf(),
-    threadId: '1010103',
-    members: [users[2]],
-  },
-  {
-    _uid: '10104',
-    createdAt: Date.now().valueOf(),
-    threadId: '1010104',
-    members: [users[3]],
-  },
-  {
-    _uid: '10105',
-    createdAt: Date.now().valueOf(),
-    threadId: '1010105',
-    members: [users[4]],
-  },
-  {
-    _uid: '10106',
-    createdAt: Date.now().valueOf(),
-    threadId: '1010106',
-    members: [users[5]],
-  },
-];
+import ThreadItem from '../components/ThreadItem';
+import ActivityItem from '../components/ActivityItem';
 
-const Item = ({ title, onPress }: { title: string; onPress: any }) => (
-  <Pressable style={styles.item} onPress={onPress}>
-    <Text style={styles.title}>{title}</Text>
-  </Pressable>
-);
+import { filterObjArrayByRegexp } from '../helpers/regexp';
+import { upsertValArray } from '../helpers/map';
+
+const messageListMap = messageList.reduce((ret, m) => {
+  upsertValArray(ret, m.threadId, m);
+  return ret;
+}, new Map<string, Message[]>());
+
+type SearchData = {
+  displayName: string;
+};
 
 export default function ThreadList({ navigation }: OneScreenProps<'ThreadList'>) {
-  const renderItem = ({ item }: { item: Thread }) => (
-    <Item
-      title={item.members[0].displayName}
-      onPress={() => {
-        navigation.navigate('Thread', item);
-      }}
-    />
-  );
+  const { control, handleSubmit } = useForm<SearchData>();
+  const [formVal, setFormVal] = useState(``);
+  const [thList, setthList] = useState(threadList);
 
-  return <FlatList data={threadList} renderItem={renderItem} keyExtractor={(item) => item._uid} />;
+  const onChangeVal = (val: string) => {
+    setFormVal(val);
+  };
+
+  useEffect(() => {
+    const newList = filterObjArrayByRegexp(formVal, threadList, ['members', 0, 'displayName']);
+    setthList(newList);
+  }, [formVal, setthList]);
+
+  const renderItemVertical = ({ item, index }: { item: Thread; index: number }) => {
+    const subs = (() => {
+      const arr = messageListMap.get(item.threadId);
+      if (arr) {
+        return arr[0].body;
+      }
+    })();
+
+    return (
+      <ThreadItem
+        heading={item.members[0].displayName}
+        subs={subs}
+        imageUri={item.members[0].avatar}
+        index={index}
+        onPress={() => {
+          navigation.navigate('Thread', item);
+        }}
+        onCirclePressOut={() => {
+          navigation.navigate('Profile', item.members[0]);
+        }}
+      />
+    );
+  };
+
+  const renderItemHorizontal = ({ item }: { item: Thread }) => {
+    return <ActivityItem user={item.members[0]} />;
+  };
+
+  return (
+    <View style={{ height: '100%' }}>
+      <View
+        style={{
+          paddingVertical: 50,
+          paddingHorizontal: 20,
+        }}
+      >
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={{}}
+              autoCapitalize='none'
+              placeholder='search matches'
+              onBlur={onBlur}
+              onChangeText={(value) => {
+                onChange(value);
+                onChangeVal(value);
+              }}
+              value={value}
+            />
+          )}
+          name='displayName'
+          rules={{
+            required: true,
+            maxLength: 10,
+          }}
+          defaultValue=''
+        />
+      </View>
+
+      <View
+        style={{
+          overflow: 'hidden',
+          borderWidth: 0.5,
+          borderTopLeftRadius: 50,
+          borderTopRightRadius: 50,
+        }}
+      >
+        <View style={{ marginBottom: 10 }}>
+          <FlatList
+            data={threadList}
+            renderItem={renderItemHorizontal}
+            keyExtractor={(item) => item._uid}
+            horizontal={true}
+          />
+        </View>
+        <View style={{ height: '100%' }}>
+          <FlatList
+            ItemSeparatorComponent={
+              Platform.OS !== 'android'
+                ? ({ highlighted }) => (
+                    <View style={[styles.separator, highlighted && { marginLeft: 0 }]} />
+                  )
+                : null
+            }
+            data={thList}
+            renderItem={renderItemVertical}
+            keyExtractor={(item) => item._uid}
+          />
+        </View>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -96,11 +139,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
   },
+  separator: {
+    borderWidth: 0.5,
+    marginHorizontal: 20,
+  },
   item: {
-    backgroundColor: '#f9c2ff',
     padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
+    backgroundColor: 'transparent',
   },
   title: {
     fontSize: 32,

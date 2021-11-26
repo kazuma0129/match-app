@@ -1,8 +1,10 @@
 import { Data, Uid, List } from './common';
-import { UserPublicList, UserPublic } from './users';
+import { UserPublic } from './users';
+
+export type ThreadId = Uid;
 
 export type ThreadBase = {
-  threadId: Uid;
+  threadId: ThreadId;
   members: UserPublic[];
 };
 

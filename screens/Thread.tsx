@@ -1,56 +1,86 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { GiftedChat } from 'react-native-gifted-chat';
+import * as ThreadModel from '../models/threads';
+import * as UserModel from '../models/users';
+import * as MessageModel from '../models/messages';
 
 import { OneScreenProps } from '../navigation/types';
 
-type Uid = number;
+import { messageList, ME as demoMe } from '../demo';
 
-type User = {
-  _id: Uid;
+type GCID = string;
+
+type GCUser = {
+  _id: GCID;
   name: string;
-  avatar: string;
+  avatar?: string;
 };
 
-type Message = {
-  _id: Uid;
+type GCMessage = {
+  _id: GCID;
   text: string;
   createdAt: Date;
-  user: User;
+  user: GCUser;
+};
+
+const formatToGCUser = (user: UserModel.UserPublic): GCUser => {
+  return {
+    _id: user.userId,
+    name: user.displayName,
+    avatar: user.avatar,
+  };
+};
+
+const ME = formatToGCUser(demoMe);
+
+const formatToGCMessages = (
+  message: MessageModel.Message,
+  user: UserModel.UserPublic
+): GCMessage => {
+  const u = message.createdBy === ME._id ? ME : formatToGCUser(user);
+  return {
+    _id: message.messageId,
+    text: message.body,
+    createdAt: new Date(message.createdAt),
+    user: u,
+  };
 };
 
 export default function Thread({ route, navigation }: OneScreenProps<'Thread'>) {
-  const [title, setTitle] = useState(route.params.members[0].displayName);
+  const thread: ThreadModel.Thread = route.params;
+  const user = thread.members[0];
+
+  const demoMessages = messageList.filter((e) => e.threadId === thread.threadId);
+
+  const [title, setTitle] = useState(user.displayName);
   useEffect(() => {
     navigation.setOptions({ title });
   }, [title, setTitle]);
 
-  const [messages, setMessages] = useState<Message[]>([]);
-  useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-    ]);
-  }, []);
+  const initialMessages = demoMessages.map((m) => {
+    return formatToGCMessages(m, user);
+  });
 
-  const onSend = useCallback((messages = []) => {
+  const [messages, setMessages] = useState<GCMessage[]>(initialMessages);
+
+  const onSend = useCallback((messages: GCMessage[] = []) => {
     setMessages((previousMessages) => GiftedChat.append(previousMessages, messages));
+
+    // CAUTION: just Echolalia
+    const _id = messages[0]._id.slice(0, -1) + '1';
+    setMessages((previousMessages) =>
+      GiftedChat.append(previousMessages, [{ ...messages[0], _id, user: formatToGCUser(user) }])
+    );
   }, []);
 
   return (
     <GiftedChat
       messages={messages}
       onSend={(messages) => onSend(messages)}
-      user={{
-        _id: 1,
+      onPressAvatar={() => {
+        navigation.navigate('Profile', user);
       }}
+      user={ME}
     />
   );
 }

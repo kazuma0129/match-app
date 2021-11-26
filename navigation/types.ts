@@ -8,6 +8,7 @@ import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/n
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { Thread } from '../models/threads';
+import { UserPublic } from '../models/users';
 
 declare global {
   namespace ReactNavigation {
@@ -40,6 +41,7 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 export type OneStackParamList = {
   Thread: Thread;
   ThreadList: undefined;
+  Profile: UserPublic;
 };
 
 export type OneScreenProps<Screen extends keyof OneStackParamList> = NativeStackScreenProps<
